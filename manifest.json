@@ -1,0 +1,20 @@
+{
+    "name": "WODO: WASM To-Do",
+    "short_name": "WODO",
+    "start_url": "index.html",
+    "display": "standalone",
+    "theme_color": "#0d1117",
+    "background_color": "#0d1117",
+    "icons": [
+        {
+            "src": "random-data.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "sample.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

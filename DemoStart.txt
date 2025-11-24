@@ -1,0 +1,59 @@
+
+[Demo]
+emcc hello.c -o index.html --shell-file shell_minimal.html -s WASM=1 -s FULL_ES3=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2
+
+[Old]
+emcc todo.c -o index.html --shell-file shell_minimal.html -s WASM=1 -s FULL_ES3=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2
+
+emrun index.html
+
+
+[Old]
+emcc todo.c -o todo.html --shell-file shell_minimal.html -s WASM=1 -s FULL_ES3=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2
+
+emrun todo.html
+
+
+[Old]
+emcc todo.c -o todo.html --shell-file shell_minimal.html ^
+ -s WASM=1 -s FULL_ES3=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 ^
+ -s EXPORTED_FUNCTIONS="['_main','_addTaskFromJS']" ^
+ -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']"
+
+emrun todo.html
+
+
+[Old]
+emcc todo.c -o todo.html --shell-file shell_minimal.html ^
+ -s WASM=1 -s FULL_ES3=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 ^
+ -s EXPORTED_FUNCTIONS="['_main','_addTaskFromJS','_clearTasks','_loadTaskFromJS']" ^
+ -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']"
+
+emrun todo.html
+
+
+[Old]
+emcc todo.c -o todo.html ^
+  --shell-file shell_template.html ^
+  -s WASM=1 ^
+  -s EXPORTED_FUNCTIONS="['_main','_addTask','_deleteTask','_toggleTask','_editTask','_getTaskCount','_getTaskTitle','_getTaskCompleted','_clearTasks','_loadTask']" ^
+  -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']"
+
+
+[Latest Compile and Run Commands]
+
+cd C:\Users\user\Desktop\UPV\5Y-1S\CMSC131-1\WODO-WASM-ToDoList
+
+emcc todo.c -o todo.js ^
+  -s WASM=1 ^
+  -s EXPORTED_FUNCTIONS="['_main','_getTaskCount','_getTaskTitle','_getTaskCompleted','_addTask','_deleteTask','_toggleTask','_editTask','_clearTasks']" ^
+  -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']"
+
+
+emrun index.html
+
+
+
+
+
+

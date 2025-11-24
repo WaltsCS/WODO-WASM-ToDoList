@@ -1,0 +1,14 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Win64-Clang",
+            "includePath": [
+                "${workspaceFolder}"
+            ],
+            "intelliSenseMode": "windows-clang-x64",
+            "cStandard": "c17",
+            "compilerPath": "C:/msys64/mingw32/bin/gcc.exe"
+        }
+    ]
+}

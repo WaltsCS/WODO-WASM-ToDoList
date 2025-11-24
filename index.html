@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <title>WODO: To-Do (WASM)</title>
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#111827" />
+
+    <style>
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+        color: #e5e7eb;
+        font-family: Arial, sans-serif;
+      }
+
+      header {
+        margin: 18px 0 10px;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .app-frame {
+        margin-top: 4px;
+        padding: 16px 18px 20px;
+        background: rgba(15, 23, 42, 0.96);
+        border-radius: 18px;
+        box-shadow:
+          0 18px 45px rgba(15, 23, 42, 0.9),
+          0 0 0 1px rgba(148, 163, 184, 0.15);
+        display: inline-flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 840px;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+
+      .toolbar-left {
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        border: none;
+        cursor: pointer;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .btn-primary {
+        background: linear-gradient(to right, #22c55e, #4ade80);
+        color: #022c22;
+      }
+
+      .btn-primary:hover {
+        filter: brightness(1.05);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: #9ca3af;
+        border: 1px solid rgba(55, 65, 81, 0.8);
+      }
+
+      .btn-ghost:hover {
+        border-color: #f97316;
+        color: #f97316;
+      }
+
+      .todo-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 420px;
+        overflow-y: auto;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: inset 0 0 0 1px rgba(31, 41, 55, 0.9);
+      }
+
+      .todo-empty {
+        padding: 40px 28px;
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+        font-size: 14px;
+        gap: 10px;
+      }
+
+      .todo-item:last-child {
+        border-bottom: none;
+      }
+
+      .todo-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid rgba(75, 85, 99, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .todo-item.done .todo-check {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: #022c22;
+      }
+
+      .todo-text {
+        flex: 1;
+        cursor: pointer;
+      }
+
+      .todo-item.done .todo-text {
+        text-decoration: line-through;
+        color: #9ca3af;
+      }
+
+      .todo-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .btn-small {
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        border: 1px solid rgba(75, 85, 99, 0.9);
+        background: rgba(15, 23, 42, 0.9);
+        color: #e5e7eb;
+      }
+
+      .btn-small.delete {
+        border-color: rgba(248, 113, 113, 0.9);
+        color: #fecaca;
+      }
+
+      .btn-small.delete:hover {
+        background: rgba(248, 113, 113, 0.12);
+      }
+
+      .btn-small.edit:hover {
+        border-color: #60a5fa;
+        color: #bfdbfe;
+      }
+
+      #output {
+        width: 100%;
+        height: 120px;
+        background: #020617;
+        color: #a3e635;
+        border-radius: 12px;
+        border: 1px solid rgba(51, 65, 85, 0.9);
+        font-family: monospace;
+        padding: 8px 10px;
+        resize: none;
+        outline: none;
+        font-size: 12px;
+      }
+
+      #output:focus {
+        box-shadow: 0 0 0 1px #22c55e;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>WODO: TO-DO LIST</header>
+
+    <div class="app-frame">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button id="addBtn" class="btn-primary">+ Add Task</button>
+          <button id="clearBtn" class="btn-ghost">Clear All</button>
+        </div>
+        <span id="counter" style="font-size: 12px; color:#9ca3af;"></span>
+      </div>
+
+      <ul id="todoList" class="todo-list">
+        <li class="todo-empty">No tasks yet. Press <strong>Add Task</strong> or hit <strong>N</strong>.</li>
+      </ul>
+
+      <textarea id="output" readonly></textarea>
+    </div>
+
+    <script>
+      //Helper for logging
+      function logLine(msg) {
+        const out = document.getElementById("output");
+        out.value += msg + "\n";
+        out.scrollTop = out.scrollHeight;
+        console.log(msg);
+      }
+
+      //WASM Module
+      var Module = {
+        print: function () {
+          logLine(Array.prototype.join.call(arguments, " "));
+        },
+        onRuntimeInitialized: function () {
+          setupTodoBindings();
+        }
+      };
+
+      //UI + WASM wiring
+      function setupTodoBindings() {
+        //C function wrappers
+        const cGetCount   = Module.cwrap("getTaskCount", "number", []);
+        const cGetTitle   = Module.cwrap("getTaskTitle", "string", ["number"]);
+        const cGetDone    = Module.cwrap("getTaskCompleted", "number", ["number"]);
+        const cAdd        = Module.cwrap("addTask", null, ["string"]);
+        const cDelete     = Module.cwrap("deleteTask", null, ["number"]);
+        const cToggle     = Module.cwrap("toggleTask", null, ["number"]);
+        const cEdit       = Module.cwrap("editTask", null, ["number", "string"]);
+        const cClear      = Module.cwrap("clearTasks", null, []);
+
+        //persistence 
+        function saveToStorage() {
+          const n = cGetCount();
+          const arr = [];
+          for (let i = 0; i < n; i++) {
+            arr.push({
+              title: cGetTitle(i),
+              completed: !!cGetDone(i)
+            });
+          }
+          localStorage.setItem("wasm-todo-tasks", JSON.stringify(arr));
+        }
+
+        function loadFromStorage() {
+          const raw = localStorage.getItem("wasm-todo-tasks");
+          cClear();
+          if (!raw) {
+            renderList();
+            return;
+          }
+          const arr = JSON.parse(raw);
+          for (const item of arr) {
+            cAdd(item.title);
+            if (item.completed) {
+              const idx = cGetCount() - 1;
+              if (!cGetDone(idx)) cToggle(idx);
+            }
+          }
+          renderList();
+        }
+
+        //rendering
+        function escapeHtml(str) {
+          return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function renderList() {
+          const list = document.getElementById("todoList");
+          const counter = document.getElementById("counter");
+          list.innerHTML = "";
+
+          const n = cGetCount();
+          if (n === 0) {
+            const li = document.createElement("li");
+            li.className = "todo-empty";
+            li.innerHTML = "No tasks yet. Press <strong>Add Task</strong> or hit <strong>N</strong>.";
+            list.appendChild(li);
+          } else {
+            for (let i = 0; i < n; i++) {
+              const done = !!cGetDone(i);
+              const li = document.createElement("li");
+              li.className = "todo-item" + (done ? " done" : "");
+              li.dataset.index = i;
+
+              li.innerHTML = `
+                <div class="todo-check" data-role="toggle">${done ? "✓" : ""}</div>
+                <div class="todo-text" data-role="toggle">${escapeHtml(cGetTitle(i))}</div>
+                <div class="todo-actions">
+                  <button class="btn-small edit" data-role="edit">Edit</button>
+                  <button class="btn-small delete" data-role="delete">×</button>
+                </div>
+              `;
+
+              list.appendChild(li);
+            }
+          }
+
+          counter.textContent = n === 1 ? "1 task" : n + " tasks";
+        }
+
+        //UI events 
+        document.getElementById("addBtn").addEventListener("click", () => {
+          const t = prompt("Enter new task:");
+          if (!t || !t.trim()) return;
+          cAdd(t.trim());
+          saveToStorage();
+          renderList();
+          logLine("+ Added: " + t.trim());
+        });
+
+        document.getElementById("clearBtn").addEventListener("click", () => {
+          if (!confirm("Clear all tasks?")) return;
+          cClear();
+          saveToStorage();
+          renderList();
+          logLine("List cleared.");
+        });
+
+        //list click: toggle / edit / delete
+        document.getElementById("todoList").addEventListener("click", (e) => {
+          const li = e.target.closest(".todo-item");
+          if (!li) return;
+          const idx = parseInt(li.dataset.index, 10);
+
+          const role = e.target.dataset.role;
+          if (role === "toggle") {
+            cToggle(idx);
+            saveToStorage();
+            renderList();
+            return;
+          }
+
+          if (role === "delete") {
+            if (!confirm("Delete this task?")) return;
+            cDelete(idx);
+            saveToStorage();
+            renderList();
+            return;
+          }
+
+          if (role === "edit") {
+            const current = cGetTitle(idx);
+            const t = prompt("Edit task:", current);
+            if (!t || !t.trim()) return;
+            cEdit(idx, t.trim());
+            saveToStorage();
+            renderList();
+            return;
+          }
+        });
+
+        //keyboard shortcut: "N" key to add
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "n" || e.key === "N") {
+            document.getElementById("addBtn").click();
+          }
+        });
+
+        //initial load
+        loadFromStorage();
+        logLine("WASM To-Do ready. Press N to add tasks.");
+      }
+    </script>
+
+    <!-- load generated WASM JS runtime -->
+    <script src="todo.js"></script>
+  </body>
+</html>
