@@ -2,11 +2,11 @@ self.addEventListener("install", event => {
     event.waitUntil(
         caches.open("wasm-todo-cache-v1").then(cache => {
             return cache.addAll([
-                "./index.html",
-                "./todo.js",
-                "./todo.wasm",
-                "./manifest.json",
-                "./"
+                "/WODO-WASM-ToDoList/index.html",
+                "/WODO-WASM-ToDoList/todo.js",
+                "/WODO-WASM-ToDoList/todo.wasm",
+                "/WODO-WASM-ToDoList/manifest.json",
+                "/WODO-WASM-ToDoList/"
             ]);
         })
     );
