@@ -11,13 +11,13 @@ const ASSETS = [
   `${ROOT}/todo.wasm`,
   `${ROOT}/manifest.json`,
   `${ROOT}/offline.html`,
-  `${ROOT}/icons/icon-192.png`,
-  `${ROOT}/icons/icon-512.png`
+  `${ROOT}/random-data.png`,
+  `${ROOT}/sample.png`
 ];
 
 self.addEventListener("install", event => {
     event.waitUntil(
-        caches.open("wasm-todo-cache-v1").then(cache => {
+        caches.open("CACHE_NAME").then(cache => {
             return cache.addAll(ASSETS);
         })
     );
