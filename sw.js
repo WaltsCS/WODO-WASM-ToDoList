@@ -1,4 +1,4 @@
-const CACHE_NAME = "wodo-cache-v3";
+const CACHE_NAME = "wodo-cache-v4";
 
 //auto-detects prefix (/WODO-WASM-ToDoList)
 const ROOT = self.location.pathname.replace(/\/sw\.js$/, "");
